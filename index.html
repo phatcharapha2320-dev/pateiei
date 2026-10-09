@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แผ่นใสทะลุมิติ: นวัตกรรมสอนเศษส่วน ป.5</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#4F46E5', // Indigo 600
+                        secondary: '#10B981', // Emerald 500
+                        accent: '#F59E0B', // Amber 500
+                        surface: '#F3F4F6', // Gray 100
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F8FAFC;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Grid Animations for Phase C Demonstration */
+        .fraction-grid {
+            display: grid;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border: 4px solid #374151; /* Gray 700 */
+            border-radius: 0.5rem;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .grid-vertical {
+            display: grid;
+            grid-template-columns: repeat(var(--cols, 1), 1fr);
+            height: 100%;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 10;
+        }
+        
+        .grid-horizontal {
+            display: grid;
+            grid-template-rows: repeat(var(--rows, 1), 1fr);
+            height: 100%;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 20;
+        }
+
+        .cell-vertical {
+            border-right: 2px solid rgba(0, 0, 0, 0.8);
+        }
+        .cell-vertical:last-child { border-right: none; }
+        
+        .cell-horizontal {
+            border-bottom: 2px solid rgba(0, 0, 0, 0.8);
+        }
+        .cell-horizontal:last-child { border-bottom: none; }
+
+        .fill-blue { background-color: rgba(59, 130, 246, 0.5); } /* Blue 500 with opacity */
+        .fill-red { background-color: rgba(239, 68, 68, 0.5); }  /* Red 500 with opacity */
+
+        /* Animation for overlapping */
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .animate-slide-in {
+            animation: slideInRight 1s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="text-gray-800 font-sans antialiased selection:bg-primary selection:text-white pb-12">
+
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex-shrink-0 flex items-center gap-2">
+                    <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    <span class="font-bold text-xl tracking-tight text-gray-900">EduInnovate<span class="text-primary">.</span></span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#overview" class="text-gray-500 hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">1. ภาพรวม</a>
+                    <a href="#materials" class="text-gray-500 hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">2. สื่อ/อุปกรณ์</a>
+                    <a href="#cpa-steps" class="text-primary border-b-2 border-primary px-3 py-2 rounded-md text-sm font-medium">3. ขั้นตอน CPA</a>
+                    <a href="#assessment" class="text-gray-500 hover:text-primary px-3 py-2 rounded-md text-sm font-medium transition-colors">4. ประเมินผล</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="bg-gradient-to-br from-primary to-indigo-800 text-white py-16 lg:py-24 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-20">
+            <!-- Decorative background pattern -->
+            <svg class="h-full w-full" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+                <defs>
+                    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="1"/>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grid)" />
+            </svg>
+        </div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <span class="inline-block py-1 px-3 rounded-full bg-indigo-500 bg-opacity-50 text-indigo-100 text-sm font-semibold tracking-wider mb-4 border border-indigo-400">คณิตศาสตร์ ป.5 • นวัตกรรม CPA</span>
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+                ภารกิจรวมร่าง... <br class="hidden md:block"/> <span class="text-accent drop-shadow-md">แผ่นใสทะลุมิติ!</span>
+            </h1>
+            <p class="mt-4 text-xl md:text-2xl text-indigo-100 max-w-3xl mx-auto font-light">
+                บอกลา "สูตรคูณไขว้" ที่ท่องจำโดยไม่เข้าใจ เปลี่ยนนามธรรมสู่รูปธรรมด้วยแนวคิด <strong class="font-semibold text-white">Concrete-Pictorial-Abstract</strong>
+            </p>
+            <div class="mt-10">
+                <a href="#interactive-demo" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-full text-primary bg-white hover:bg-gray-50 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1 duration-200">
+                    ลองเล่น Demo จำลอง
+                    <svg class="ml-2 -mr-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 space-y-16">
+
+        <!-- 1. ภาพรวมนวัตกรรม -->
+        <section id="overview" class="scroll-mt-24">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xl shadow-md">1</div>
+                <h2 class="text-3xl font-bold text-gray-900">ภาพรวมนวัตกรรม</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                    <div class="text-primary mb-4">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">เป้าหมายหลัก</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">เข้าใจความหมายของการทำให้ตัวส่วนเท่ากันผ่านการมองเห็น (Visual Evidence) เชื่อมโยงภาพสู่สัญลักษณ์ได้อย่างมีความหมาย</p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                    <div class="text-secondary mb-4">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">ระยะเวลา</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">1 คาบเรียน (50 นาที) เหมาะสำหรับกิจกรรมกลุ่มหรือคู่ เพื่อกระตุ้นการอภิปราย</p>
+                </div>
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                    <div class="text-accent mb-4">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">กลุ่มเป้าหมาย</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">นักเรียน ป.5 ที่มีปัญหากับการท่องจำสูตร หรือขาดความเข้าใจเรื่องการอนุรักษ์ปริมาณ</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Demo (Phase C Simulation) -->
+        <section id="interactive-demo" class="bg-surface rounded-3xl p-8 lg:p-12 border border-gray-200 scroll-mt-24">
+            <div class="text-center mb-10">
+                <span class="text-sm font-bold text-primary uppercase tracking-wider">Interactive Simulation</span>
+                <h2 class="text-3xl font-bold text-gray-900 mt-2 mb-4">จำลอง: การรวมร่างแผ่นใส 1/2 + 1/3</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">ลองกดปุ่มด้านล่างเพื่อดูว่าเกิดอะไรขึ้นเมื่อนำแผ่นใสแนวตั้ง (1/2) มาซ้อนทับกับแผ่นใสแนวนอน (1/3)</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center max-w-5xl mx-auto">
+                <!-- แผ่นใส 1 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm flex flex-col items-center">
+                    <h4 class="font-semibold text-lg mb-4 text-blue-600">แผ่นที่ 1: $\frac{1}{2}$</h4>
+                    <div class="w-48 h-48 sm:w-64 sm:h-64 relative bg-white border-4 border-gray-800 rounded shadow-inner">
+                        <!-- กรอบ 1/2 แนวตั้ง -->
+                        <div class="absolute inset-0 grid grid-cols-2">
+                            <div class="border-r-2 border-gray-800 bg-blue-500 bg-opacity-40"></div>
+                            <div></div>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-4 text-center">แบ่งแนวตั้ง 2 ส่วน<br>ระบายสี 1 ส่วน</p>
+                </div>
+
+                <!-- เครื่องหมายบวก -->
+                <div class="flex justify-center text-4xl font-bold text-gray-400 py-4 lg:py-0">
+                    +
+                </div>
+
+                <!-- แผ่นใส 2 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm flex flex-col items-center">
+                    <h4 class="font-semibold text-lg mb-4 text-red-600">แผ่นที่ 2: $\frac{1}{3}$</h4>
+                    <div class="w-48 h-48 sm:w-64 sm:h-64 relative bg-white border-4 border-gray-800 rounded shadow-inner">
+                        <!-- กรอบ 1/3 แนวนอน -->
+                        <div class="absolute inset-0 grid grid-rows-3">
+                            <div class="border-b-2 border-gray-800 bg-red-500 bg-opacity-40"></div>
+                            <div class="border-b-2 border-gray-800"></div>
+                            <div></div>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-4 text-center">แบ่งแนวนอน 3 ส่วน<br>ระบายสี 1 ส่วน</p>
+                </div>
+            </div>
+
+            <!-- กล่องผลลัพธ์การซ้อนทับ -->
+            <div class="mt-12 text-center">
+                <button id="combineBtn" onclick="combineOverlays()" class="bg-gradient-to-r from-primary to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-bold py-4 px-8 rounded-full shadow-lg hover:shadow-xl transform transition hover:scale-105 mb-8">
+                    คลิกเพื่อซ้อนทับแผ่นใส (The Aha! Moment)
+                </button>
+
+                <div id="resultContainer" class="hidden max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl border border-indigo-100 flex-col items-center animate-slide-in">
+                    <h4 class="font-bold text-xl mb-6 text-gray-800">ตารางใหม่หลังซ้อนทับ</h4>
+                    <div class="w-64 h-64 relative bg-white border-4 border-gray-800 rounded shadow-inner overflow-hidden">
+                        <!-- แผ่น 1/2 -->
+                        <div class="absolute inset-0 grid grid-cols-2 z-10">
+                            <div class="border-r-2 border-gray-800 bg-blue-500 bg-opacity-40"></div>
+                            <div class="border-r-2 border-gray-800 border-opacity-50"></div>
+                        </div>
+                        <!-- แผ่น 1/3 ซ้อนทับ -->
+                        <div class="absolute inset-0 grid grid-rows-3 z-20 mix-blend-multiply">
+                            <div class="border-b-2 border-gray-800 bg-red-500 bg-opacity-40"></div>
+                            <div class="border-b-2 border-gray-800 border-opacity-50"></div>
+                            <div class="border-b-2 border-gray-800 border-opacity-0"></div> <!-- แก้ไขไม่ให้มีเส้นล่างสุดซ้ำซ้อน -->
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 bg-indigo-50 p-4 rounded-xl text-left w-full">
+                        <p class="font-semibold text-indigo-900 mb-2">สิ่งที่สังเกตเห็น:</p>
+                        <ul class="text-sm text-indigo-800 space-y-2 list-disc list-inside">
+                            <li>ตารางถูกแบ่งออกเป็น <strong>6 ช่องย่อย</strong> ที่เท่ากัน (ค.ร.น. ของ 2 และ 3)</li>
+                            <li>พื้นที่สีฟ้า (เดิม $\frac{1}{2}$) กลายเป็น $\frac{3}{6}$</li>
+                            <li>พื้นที่สีแดง (เดิม $\frac{1}{3}$) กลายเป็น $\frac{2}{6}$</li>
+                            <li class="font-bold text-primary mt-2 border-t border-indigo-200 pt-2">รวมชิ้นส่วนที่เท่ากันได้แล้ว: $\frac{3}{6} + \frac{2}{6} = \frac{5}{6}$</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <script>
+                function combineOverlays() {
+                    const btn = document.getElementById('combineBtn');
+                    const result = document.getElementById('resultContainer');
+                    
+                    btn.classList.add('hidden');
+                    result.classList.remove('hidden');
+                    result.classList.add('flex');
+                    
+                    // MathJax render for dynamic content if needed, though raw HTML spans are used here for simplicity.
+                }
+            </script>
+        </section>
+
+        <!-- 3. ขั้นตอน CPA -->
+        <section id="cpa-steps" class="scroll-mt-24">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xl shadow-md">3</div>
+                <h2 class="text-3xl font-bold text-gray-900">ขั้นตอนตามแนวคิด CPA</h2>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Phase C -->
+                <div class="bg-white rounded-2xl shadow-sm border-l-4 border-l-blue-500 overflow-hidden">
+                    <div class="p-6 md:p-8">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="bg-blue-100 text-blue-800 text-sm font-bold px-3 py-1 rounded">Phase C</span>
+                            <h3 class="text-xl font-bold text-gray-800">Concrete - ลงมือทำ (15 นาที)</h3>
+                        </div>
+                        <h4 class="font-semibold text-lg text-gray-700 mb-2">"สร้างชิ้นส่วนปริศนา"</h4>
+                        <ol class="list-decimal list-inside space-y-3 text-gray-600 ml-2">
+                            <li><strong class="text-gray-800">ปัญหาท้าทาย:</strong> ครูเล่าสถานการณ์ "เรามีพิซซ่าถาดสี่เหลี่ยมที่กินไปแล้วบางส่วน ถาดแรกเหลือ 1/2 ถาดสองเหลือ 1/3 ถ้านำมารวมกัน เราจะมีพิซซ่าเหลือเท่าไหร่?"</li>
+                            <li><strong class="text-gray-800">สร้างชิ้นส่วนแนวตั้ง:</strong> ให้นักเรียนวางแผ่นใสแผ่นที่ 1 ทับบนกรอบสี่เหลี่ยม 10x10 ซม. ใช้ปากกาสีน้ำเงินขีดเส้นแบ่ง <strong>แนวตั้ง</strong> เป็น 2 ส่วน ระบายสี 1 ส่วน</li>
+                            <li><strong class="text-gray-800">สร้างชิ้นส่วนแนวนอน:</strong> วางแผ่นใสแผ่นที่ 2 ทับบนกรอบ (เอาแผ่นแรกออกก่อน) ใช้ปากกาสีแดงขีดเส้นแบ่ง <strong>แนวนอน</strong> เป็น 3 ส่วน ระบายสี 1 ส่วน</li>
+                            <li><strong class="text-primary bg-indigo-50 px-2 py-1 rounded">ภารกิจรวมร่าง (The Aha! Moment):</strong> ให้นักเรียนนำแผ่นใสทั้ง 2 แผ่นมาซ้อนทับกัน (ใช้คลิปหนีบไว้)</li>
+                            <li><strong class="text-gray-800">สังเกต:</strong> สังเกตตารางใหม่ที่เกิดจากการซ้อนทับ นับจำนวนช่องย่อยที่เกิดขึ้น (6 ช่อง)</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Phase P -->
+                <div class="bg-white rounded-2xl shadow-sm border-l-4 border-l-secondary overflow-hidden">
+                    <div class="p-6 md:p-8">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="bg-emerald-100 text-emerald-800 text-sm font-bold px-3 py-1 rounded">Phase P</span>
+                            <h3 class="text-xl font-bold text-gray-800">Pictorial - เชื่อมโยงภาพ (15 นาที)</h3>
+                        </div>
+                        <h4 class="font-semibold text-lg text-gray-700 mb-2">"บันทึกสิ่งที่เห็น"</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                            <div>
+                                <ul class="list-disc list-inside space-y-3 text-gray-600 ml-2">
+                                    <li><strong class="text-gray-800">วาดภาพแยก:</strong> วาดภาพสี่เหลี่ยม 3 รูป ลงในสมุด (1/2 แนวตั้ง, 1/3 แนวนอน, และตาราง 6 ช่องที่เกิดจากการทับ)</li>
+                                    <li><strong class="text-gray-800">แปลความหมายภาพ:</strong> ให้เด็กช่วยกันระบายสีรูปที่ 1 และ 2 ใหม่ โดยใช้เส้นตาราง 6 ช่องเป็นเกณฑ์ (เห็นชัดว่า 1/2 คือ 3/6)</li>
+                                    <li><strong class="text-gray-800">วาดผลลัพธ์:</strong> วาดสี่เหลี่ยมรูปที่ 4 เพื่อแสดงผลรวม ระบายสีลงไปในช่องว่างให้ครบ</li>
+                                </ul>
+                            </div>
+                            <div class="bg-gray-50 rounded-xl p-4 flex items-center justify-center border border-gray-200">
+                                <!-- Placeholder for drawing illustration -->
+                                <div class="text-center text-gray-400 text-sm">
+                                    <svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                    [พื้นที่วาดภาพในใบงานนักเรียน]
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase A -->
+                <div class="bg-white rounded-2xl shadow-sm border-l-4 border-l-accent overflow-hidden">
+                    <div class="p-6 md:p-8">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="bg-amber-100 text-amber-800 text-sm font-bold px-3 py-1 rounded">Phase A</span>
+                            <h3 class="text-xl font-bold text-gray-800">Abstract - ถอดรหัสสู่สัญลักษณ์ (15 นาที)</h3>
+                        </div>
+                        <h4 class="font-semibold text-lg text-gray-700 mb-4">"ถอดรหัสภาพสู่ตัวเลข"</h4>
+                        
+                        <div class="bg-amber-50 p-6 rounded-xl border border-amber-100 font-mono text-lg text-center mx-auto max-w-2xl text-gray-800 shadow-inner">
+                            <div class="flex justify-center items-center space-x-4 mb-2">
+                                <span>1/2</span> <span>+</span> <span>1/3</span>
+                            </div>
+                            <div class="flex justify-center items-center space-x-4 mb-2 text-amber-700">
+                                <span>= 3/6</span> <span>+</span> <span>2/6</span>
+                            </div>
+                            <div class="flex justify-center items-center space-x-4 font-bold text-2xl border-t border-amber-200 pt-2 mt-2">
+                                <span>= 5/6</span>
+                            </div>
+                        </div>
+                        
+                        <p class="mt-6 text-gray-600"><strong class="text-gray-800">เชื่อมโยงสู่หลักการ:</strong> ครูชวนสังเกตว่า "เส้นตาราง 6 ช่อง" สัมพันธ์อย่างไรกับตัวเลข 2 และ 3 (นำไปสู่ความเข้าใจเรื่องผลคูณร่วม และ ค.ร.น.) สรุปว่าเราบวกของที่ขนาดไม่เท่ากันดื้อๆ ไม่ได้ ต้อง "ซอย" ให้เท่ากันก่อน</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. บทพูดของครู -->
+        <section class="scroll-mt-24">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                บทสนทนาและคำถามกระตุ้นคิด (Teacher Script)
+            </h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Hook -->
+                <div class="bg-gray-800 text-white p-6 rounded-2xl">
+                    <h3 class="text-amber-400 font-bold mb-3 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z"></path></svg>
+                        เปิดประเด็น (Hook)
+                    </h3>
+                    <p class="italic text-gray-300 leading-relaxed">
+                        "ถ้าครูมีแอปเปิ้ล 1 ลูก กับ ส้ม 1 ผล ครูบอกว่าครูมีผลไม้รวม 2... สองอะไรดีล่ะ? เราเรียกชื่อรวมมันไม่ได้ใช่ไหม? เศษส่วนก็เหมือนกัน ถ้าชิ้นมันไม่เท่ากัน (ส่วน 2 กับ ส่วน 3) เราจะเอามารวมกันดื้อๆ ยังไงดี วันนี้เราจะใช้แผ่นใสทะลุมิติมาไขปริศนานี้กัน!"
+                    </p>
+                </div>
+                
+                <!-- Reflection -->
+                <div class="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm">
+                    <h3 class="text-primary font-bold mb-3">คำถามระหว่างทำกิจกรรม (Reflection)</h3>
+                    <ul class="space-y-3 text-gray-700">
+                        <li class="flex gap-2"><span class="text-primary font-bold">Q:</span> เกิดอะไรขึ้นเมื่อเอาแผ่นเส้นแนวตั้งมาซ้อนแนวนอน?</li>
+                        <li class="flex gap-2"><span class="text-primary font-bold">Q:</span> ตารางใหม่มีกี่ช่อง? ทำไมต้องเป็น 6 มันมาจากไหน?</li>
+                        <li class="flex gap-2"><span class="text-primary font-bold">Q:</span> ดูที่ส่วนสีน้ำเงิน (1/2) ตอนนี้มันกินพื้นที่ไปกี่ช่องย่อยจาก 6 ช่อง?</li>
+                        <li class="flex gap-2"><span class="text-primary font-bold">Q:</span> ตอนนี้ชิ้นส่วนทุกชิ้นเท่ากันหรือยัง? เรานับรวมกันได้ไหม?</li>
+                    </ul>
+                </div>
+                
+                <!-- Troubleshooting the 2/5 mistake -->
+                <div class="bg-red-50 border border-red-200 p-6 rounded-2xl lg:col-span-2">
+                    <h3 class="text-red-700 font-bold mb-2">เมื่อเด็กตอบ 1/2 + 1/3 = 2/5 (เอาเศษบวกเศษ ส่วนบวกส่วน)</h3>
+                    <p class="text-gray-700 italic">
+                        "น่าสนใจมาก! ไหนลองดูที่แผ่นใสสิ ถ้าได้ 2/5 แปลว่าพิซซ่าเราจะเล็กลงครึ่งหนึ่งเลยนะ (ชี้ให้เห็นว่า 2/5 น้อยกว่า 1/2 อีก) เป็นไปได้ไหมที่เราเอาของมาเพิ่มแล้วผลรวมจะน้อยลงกว่าตอนเริ่มต้น? ลองดูภาพที่ซ้อนทับกันใหม่สิ เราได้ช่องย่อยทั้งหมดกี่ช่องเอ่ย?"
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 mt-20 pt-8 pb-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-2 text-gray-500">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                <span>ออกแบบนวัตกรรมโดย: Expert Primary Math Instructional Designer</span>
+            </div>
+            <div class="text-sm text-gray-400">
+                CPA Approach (Concrete - Pictorial - Abstract)
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
